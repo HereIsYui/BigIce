@@ -5,13 +5,13 @@ import { Admin } from './entities/admin.entity';
 import { PiUser } from '../auth/entities/auth.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../auth/contants';
+import { adminJwtConstants } from '../auth/contants';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Admin, PiUser]), JwtModule.register({
-    secret: jwtConstants.secret,
+    secret: adminJwtConstants.secret,
     signOptions: {
-      expiresIn: jwtConstants.expiresIn
+      expiresIn: adminJwtConstants.expiresIn
     }
   })],
   controllers: [AdminController],

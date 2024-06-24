@@ -25,7 +25,24 @@ export class UserController {
 
   @Get('getUser/:openid')
   async getUserInfoById(@Param() params: any) {
+    if (!params.openid) {
+      return {
+        code: 400,
+        msg: '参数错误',
+      };
+    }
     return this.userService.getUserById(params.openid);
+  }
+
+  @Post('editUserPoint')
+  async editUserPoint(@Body() body: any) {
+    if (!body.uid || !body.point || !body.reason) {
+      return {
+        code: 400,
+        msg: '参数错误',
+      };
+    }
+    return this.userService.updateUserPoint(body.uid, body.point, body.reason);
   }
 
   @Post('addUser')

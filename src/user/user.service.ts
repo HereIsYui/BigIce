@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { PiUser } from '../auth/entities/auth.entity';
+import { PointRecord } from './entities/point_record.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt/dist';
@@ -11,8 +12,9 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly user: Repository<User>,
     @InjectRepository(PiUser) private readonly piUser: Repository<PiUser>,
+    @InjectRepository(PointRecord) private readonly pointRecord: Repository<PointRecord>,
     private readonly JwtService: JwtService,
-  ) {}
+  ) { }
 
   // login
   async login(username: string, password: string) {
@@ -70,6 +72,25 @@ export class UserService {
       };
     }
   }
+  // 更新用户积分
+  async updateUserPoint(openid: string, point: number, reason: string) {
+    const user = await this.user.findOne({
+      where: { openid }
+    })
+    if (user == null) {
+      return { code: 400, msg: '用户不存在' }
+    } else {
+      this.user.update(user.id, { point: user.point + point })
+      const newPointRecord = this.pointRecord.create({
+        uid: user.fish_uid,
+        point: point,
+        reason: reason
+      });
+      this.pointRecord.save(newPointRecord);
+      return { code: 200, msg: '更新成功' }
+    }
+  }
+
   async addUser(user: User) {
     if (!user.username || !user.password) {
       return { code: 400, msg: '用户名或密码不能为空' };
